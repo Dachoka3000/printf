@@ -1,98 +1,52 @@
+#include <stdarg.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <stddef.h>
 #include "main.h"
-
 /**
- * _printf - prints anything
- * @format: the format string
- *
- * Return: number of bytes printed
+ * _printf - printf copu
+ * @format: format receive
+ * Return: ret
  */
 int _printf(const char *format, ...)
 {
-	int sum = 0;
-	va_list ap;
-	char *p, *start;
-	params_t params = PARAMS_INIT;
-
-	va_start(ap, format);
-
-	if (!format || (format[0] == '%' && !format[1]))
+	va_list p;
+	int i = 0, j = 0, ret = 0, fret = 0, flag = 0;
+	pr pf_s[] = {
+		{'s', print_string}, {'c', print_char}, {'%', print_percent},
+		{'d', print_int}, {'i', print_int},
+		{'\0', NULL}};
+	va_start(p, format);
+	if (format == NULL)
 		return (-1);
-	if (format[0] == '%' && format[1] == ' ' && !format[2])
-		return (-1);
-	for (p = (char *)format; *p; p++)
-	{
-		init_params(&params, ap);
-		if (*p != '%')
+	for (i = 0; format != NULL && format[i] != '\0'; i++)
+	{	flag = 0;
+		if (format[i] == '%')
 		{
-			sum += _putchar(*p);
-			continue;
+			if (format[i + 1] == '\0')
+				return (-1);
+			i++;
+			for (j = 0; pf_s[j].c != '\0'; j++)
+				if (format[i] == pf_s[j].c)
+				{
+					fret += pf_s[j].f(p);
+					flag = 1;
+				}
 		}
-		start = p;
-		p++;
-		while (get_flag(p, &params)) /* while char at p is flag char */
-		{
-			p++; /* next char */
-		}
-		p = get_width(p, &params, ap);
-		p = get_precision(p, &params, ap);
-		if (get_modifier(p, &params))
-			p++;
-		if (!get_specifier(p))
-			sum += print_from_to(start, p,
-				params.l_modifier || params.h_modifier ? p - 1 : 0);
 		else
-			sum += get_print_func(p, ap, &params);
+		{
+			_putchar(format[i]);
+			ret++;
+			flag = 1;
+		}
+		if (flag == 0)
+		{
+			i--;
+			_putchar(37);
+			fret++;
+		}
 	}
-	_putchar(BUF_FLUSH);
-	va_end(ap);
-	return (sum);
+	ret += fret;
+	return (ret);
 }
-// #include "main.h"
-// /**
-//  *_printf - function that produces output according to a format
-//  *@format: info to print
-//  *Return: count
-//  */
-// int _printf(const char *format, ...)
-// {
-// 	va_list args;
-// 	int i, len;
-// 	int (*get_ptr)(va_list, int);
-
-//     va_start(args, format);
-// 	if (!(format))
-// 		return (-1);
-// 	i = 0;
-// 	len = 0;
-// 	while (format && format[i])
-//     {
-//         	if (format[i] == '%')
-// 		{
-// 			i++;
-// 			if (format[i] == '%')
-// 			{
-// 				len += _putchar(format[i]);
-// 				i++;
-// 				continue;
-// 			}
-// 			if (format[i] == '\0')
-// 				return (-1);
-// 			get_ptr = get_print_func(format[i]);
-// 			if (get_ptr != NULL)
-// 				len = get_ptr(args, len);
-// 			else
-// 			{
-// 				len += _putchar(format[i - 1]);
-// 				len += _putchar(format[i]);
-// 			}
-// 			i++;
-// 		}
-// 		else
-// 		{
-// 			len += _putchar(format[i]);
-// 			i++;
-// 		}
-// 	}
-//     va_end(args);
-// 	return (len);
-// }
