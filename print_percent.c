@@ -11,3 +11,4 @@ int print_percent(va_list s)
 	_putchar(37);
 	return (1);
 }
+//
